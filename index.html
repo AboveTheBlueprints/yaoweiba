@@ -62,8 +62,10 @@ function turn(dx) {
     const behind = S.red - S.you, ph = S.walked % 5;   // v2：走三步、停一步（停下就是要回头了）、第五步回头（画成朝你）
     if (ph === 0) {
       S.look = true;
-      if (behind > 0 && behind <= 2) { S.dir = -1; S.st = 'chase'; S.chase = 3; S.look = false; say('它回头看见你跟得太近，扭过身来。'); }
-    } else if (ph !== 4) {
+      if (behind > 0 && behind <= 2) { S.dir = -1; S.st = 'chase'; S.chase = 3; S.look = false; say('它回头看见你跟得太近，扭过身来。'); } else say('它回头看了一眼，没看见你。');
+    } else if (ph === 4) {
+      say('它停下来，抬起头，往后闻了闻。');   // v5：第 14 天页18 '抬起头闻了闻'生人读出来过；预兆用它自己的动作，不画记号
+    } else {
       S.red++;
       if (S.red === H) { S.st = 'enter'; S.enterT = 3; say('它在洞口往里钻，头先进去了。'); }
     }
