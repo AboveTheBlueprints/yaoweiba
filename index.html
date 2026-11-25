@@ -12,7 +12,7 @@ small{color:#7d776c}button{background:#2a2823;color:#ddd6c8;border:1px solid #55
      这里：红吃了你那只虫，正往洞走。它边走边回头，回头前尾巴先甩一下。它站在洞口钻的那一下最笨，那时候碰它，它只会退出来追你几步再回去。在路上碰它，它转身就是一口。 -->
 <div id="g"></div>
 <div id="log"></div>
-<div id="btn" style="margin:12px 0"><button onclick="turn(-1)">←</button> <button onclick="turn(0)">等</button> <button onclick="turn(1)">→</button> <button onclick="reset()">重来</button></div>
+<div id="btn" style="margin:12px 0"><button onclick="turn(-1);this.blur()">←</button> <button onclick="turn(0);this.blur()">等</button> <button onclick="turn(1);this.blur()">→</button> <button onclick="reset();this.blur()">重来</button></div>
 <small>← → 走，空格 等。往它身上走就是碰它。R 重来。</small>
 <script>
 const W = 14, H = 13;
