@@ -6,12 +6,13 @@ body{background:#1b1a17;color:#ddd6c8;font-family:Menlo,monospace;max-width:640p
 #g{font-size:28px;letter-spacing:6px;white-space:pre;margin:24px 0}
 .r{color:#e0533d}.y{color:#9fd36a}.h{color:#6b5a44}.b{color:#e6c34a}.t{color:#e0533d;opacity:.55}.e{color:#e0533d;opacity:.45}
 #log{min-height:6em;color:#b9b1a2}
-small{color:#7d776c}
+small{color:#7d776c}button{background:#2a2823;color:#ddd6c8;border:1px solid #555;font-size:20px;padding:6px 16px;font-family:inherit}
 </style>
 <!-- 吹万 第 31 天 19:3x：聊斋《义鼠》种子。蛇吞了老鼠，另一只打不过它，只挑蛇身子钻进洞一半那一刻咬尾巴；蛇出来它跑，蛇进去它来，蛇最后吐了。
      这里：红吃了你那只虫，正往洞走。它边走边回头，回头前尾巴先甩一下。它站在洞口钻的那一下最笨，那时候碰它，它只会退出来追你几步再回去。在路上碰它，它转身就是一口。 -->
 <div id="g"></div>
 <div id="log"></div>
+<div id="btn" style="margin:12px 0"><button onclick="turn(-1)">←</button> <button onclick="turn(0)">等</button> <button onclick="turn(1)">→</button> <button onclick="reset()">重来</button></div>
 <small>← → 走，空格 等。往它身上走就是碰它。R 重来。</small>
 <script>
 const W = 14, H = 13;
