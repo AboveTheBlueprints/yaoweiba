@@ -1,0 +1,92 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>咬尾巴</title>
+<style>
+body{background:#1b1a17;color:#ddd6c8;font-family:Menlo,monospace;max-width:640px;margin:40px auto;line-height:1.6}
+#g{font-size:28px;letter-spacing:6px;white-space:pre;margin:24px 0}
+.r{color:#e0533d}.y{color:#9fd36a}.h{color:#6b5a44}.b{color:#e6c34a}.t{color:#e0533d;opacity:.55}.e{color:#e0533d;opacity:.45}
+#log{min-height:6em;color:#b9b1a2}
+small{color:#7d776c}
+</style>
+<!-- 吹万 第 31 天 19:3x：聊斋《义鼠》种子。蛇吞了老鼠，另一只打不过它，只挑蛇身子钻进洞一半那一刻咬尾巴；蛇出来它跑，蛇进去它来，蛇最后吐了。
+     这里：红吃了你那只虫，正往洞走。它边走边回头，回头前尾巴先甩一下。它站在洞口钻的那一下最笨，那时候碰它，它只会退出来追你几步再回去。在路上碰它，它转身就是一口。 -->
+<div id="g"></div>
+<div id="log"></div>
+<small>← → 走，空格 等。往它身上走就是碰它。R 重来。</small>
+<script>
+const W = 14, H = 13;
+let S;
+function reset() {
+  S = { you: 0, red: 3, dir: 1, st: 'walk', walked: 0, chase: 0, bites: 0, bug: null, over: '', log: ['红把你那只虫吞了，往右边那个洞走。'] , tell: false };
+  draw();
+}
+function draw() {
+  let s = '';
+  for (let x = 0; x < W; x++) {
+    let c = '<span class="h">·</span>';
+    if (x === H) c = '<span class="h">◖</span>';
+    const eye = S.st === 'walk' && !S.over && (S.walked % 5 === 4 || S.look) && S.red - x >= 1 && S.red - x <= 2;   // v3：它停下、回头时，身后两格画成它要看的地方
+    if (false && eye && x !== H)   /* v4：░ 两人都没读出来（鼠5 鼠6），收掉 */ c = '<span class="e">░</span>';
+    if (S.bug === x) c = '<span class="b">ж</span>';
+    if (S.st !== 'gone' && S.red === x) {
+      const g = S.st === 'enter' ? '◗' : ((S.dir > 0 && !S.look) ? '▶' : '◀');
+      const sw = S.bites ? `<sup class="b" style="position:absolute;margin-left:-6px;margin-top:-6px;opacity:${0.35 + 0.3 * S.bites};font-size:${10 + 4 * S.bites}px;letter-spacing:0">ж</sup>` : '';   // v2：咬一回，虫就往它嗓子眼顶上来一点
+      c = `<span class="r">${g}</span>${sw}`;
+    }
+    if (S.st !== 'gone' && S.tell && x === S.red - S.dir && x !== S.you) c = '<span class="t">~</span>';
+    if (S.you === x) c = '<span class="y">●</span>';
+    s += c;
+  }
+  document.getElementById('g').innerHTML = s;
+  document.getElementById('log').innerHTML = S.log.slice(-4).map(l => '<div>' + l + '</div>').join('') + (S.over ? '<div><b>' + S.over + '</b> R 再来一回。</div>' : '');
+}
+function say(t) { S.log.push(t); }
+function turn(dx) {
+  if (S.over) return;
+  S.tell = false; S.look = false;
+  let bitten = false;
+  // 你
+  const to = S.you + dx;
+  if (dx && to >= 0 && to < W) {
+    if (S.st !== 'gone' && to === S.red) {
+      if (S.st === 'enter') { bitten = true; S.bites++; say('它头已经进了洞，你一口咬在它尾巴上。'); }
+      else if (S.dir > 0 && S.st === 'walk') { S.dir = -1; S.st = 'chase'; S.chase = 3; say('你碰到它，它一下转过身来。'); }
+      else say('它正冲着你。');
+    } else if (to !== H || S.st === 'gone') S.you = to;
+  }
+  if (S.bug !== null && S.you === S.bug) { S.bug = null; S.over = '你把那只虫叼回来了。'; say('它在洞里，你叼着虫走开。'); draw(); return; }
+  // 红
+  if (S.st === 'walk') {
+    S.walked++;
+    const behind = S.red - S.you, ph = S.walked % 5;   // v2：走三步、停一步（停下就是要回头了）、第五步回头（画成朝你）
+    if (ph === 0) {
+      S.look = true;
+      if (behind > 0 && behind <= 2) { S.dir = -1; S.st = 'chase'; S.chase = 3; S.look = false; say('它回头看见你跟得太近，扭过身来。'); }
+    } else if (ph !== 4) {
+      S.red++;
+      if (S.red === H) { S.st = 'enter'; S.enterT = 3; say('它在洞口往里钻，头先进去了。'); }
+    }
+  } else if (S.st === 'enter') {
+    if (bitten) {
+      if (S.bites >= 3) { S.st = 'gone'; S.bug = H - 1; say('它退出来又钻进去，钻到一半，"呕"地把那只虫吐在洞口，进去了。'); }
+      else { S.st = 'chase'; S.dir = -1; S.chase = 3; say('它扭着身子退出来，冲你来了。'); }
+    } else if (--S.enterT > 0) say('它扭着往里钻，尾巴还在外面。'); else { S.st = 'gone'; S.over = '它钻进洞里，不出来了。'; }
+  } else if (S.st === 'chase') {
+    const n = S.red + S.dir;
+    if (n === S.you) { S.red = n; S.over = '它追上你，一口。'; say('你跟它脸对着脸，躲不开了。'); }
+    else {
+      S.red = n; S.chase--;
+      if (S.chase <= 0) { S.dir = 1; S.st = 'walk'; S.walked = 0; say('它不追了，掉头又往洞走。'); }
+    }
+  }
+  if (S.bug !== null && S.you === S.bug) { S.bug = null; S.over = '虫正吐在你脚下，你叼起来就走。'; }
+  draw();
+}
+addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') turn(-1);
+  else if (e.key === 'ArrowRight') turn(1);
+  else if (e.key === ' ') { e.preventDefault(); turn(0); }
+  else if (e.key === 'r' || e.key === 'R') reset();
+});
+reset();
+</script>
